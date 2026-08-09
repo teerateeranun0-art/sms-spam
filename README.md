@@ -22,8 +22,14 @@ This tool is for educational purposes only. The developer is not responsible for
 🖼️ Preview
 📥 Installation Guide for Termux
 Copy and paste the command below and wait for the installation to complete:
-"""cd && pkg install git -y && git clone https://github.com/teerateeranun0-art/sms-spam/tree/main && cd SMS-Spam && bash install-termux.sh && cd"""
+```bash
+cd && pkg install git -y && git clone https://github.com/teerateeranun0-art/sms-spam/tree/main && cd SMS-Spam && bash install-termux.sh && cd
+```
 How to Run
-Then access http://127.0.0.1:8080. You must run RUN-SMS-WEB first in order to access it❗
+Then access http://127.0.0.1:8080. You must run 
+```bash
+RUN-SMS-WEB
+```
+first in order to access it❗
 Termux Download Link
 https://f-droid.org/repo/com.termux_1002.apk
