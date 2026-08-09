@@ -20,6 +20,7 @@ Disclaimer
 This tool is for educational purposes only. The developer is not responsible for any misuse or damage caused by this program.
 
 Preview
+![example](/assets/EXAMPLE.png)
 Installation Guide
 For Termux (Android)
 Copy and paste the command below into the Termux app and wait for the installation to complete:

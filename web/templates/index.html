@@ -1,196 +1,324 @@
 <!DOCTYPE html>
-<html lang="th">
+<html lang="en">
 <head>
-    <link rel="icon" href="{{ url_for('static', filename='favicon.jpg') }}" type="image/jpeg" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> SMS Spam Control Panel</title>
+    <title>Dispatch Panel</title>
+    <!-- ใช้ Inter สำหรับ UI หลัก และ JetBrains Mono สำหรับส่วนโค้ด -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
     <style>
-        body {
-            background: #0d0d0d;
-            color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            text-align: center;
+        :root {
+            --bg-body: #000000;
+            --bg-card: #09090b;
+            --bg-input: #18181b;
+            --bg-console: #050505;
+            
+            --border-light: #27272a;
+            --border-focus: #52525b;
+            
+            --text-primary: #ededed;
+            --text-secondary: #a1a1aa;
+            
+            --color-blue: #3b82f6;
+            --color-purple: #8b5cf6;
+            --color-red: #ef4444;
+            --color-green: #22c55e;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            color: var(--text-primary);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
+            align-items: center;
+            padding: 24px;
+            -webkit-font-smoothing: antialiased;
         }
-        .panel {
-            background: #161616;
-            padding: 25px;
+
+        .main-card {
             width: 100%;
-            max-width: 500px; 
+            max-width: 580px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-light);
             border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
-            border: 1px solid #333;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
         }
-        h2 { margin-top: 0; color: #fff; }
-        
-        input {
-            width: calc(100% - 24px);
-            padding: 12px;
-            margin: 8px 0;
-            font-size: 16px;
-            border-radius: 8px;
-            border: 1px solid #333;
-            background: #222;
-            color: white;
-            outline: none;
-            transition: 0.3s;
-        }
-        input:focus { border-color: #0078ff; box-shadow: 0 0 8px rgba(0, 120, 255, 0.3); }
 
-        .btn-group {
+        /* Header */
+        .header {
+            padding: 24px 24px 20px;
+            border-bottom: 1px solid var(--border-light);
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            justify-content: space-between;
+            align-items: center;
         }
-        button {
-            flex: 1;
-            padding: 12px;
-            font-size: 14px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            color: white;
-            font-weight: bold;
-            transition: transform 0.2s, opacity 0.2s;
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
         }
-        button:active { transform: scale(0.95); }
-        button:hover { opacity: 0.9; }
 
-        .fast { background: linear-gradient(45deg, #0078ff, #00c6ff); box-shadow: 0 4px 10px rgba(0, 120, 255, 0.3); }
-        .super { background: linear-gradient(45deg, #8a2be2, #da70d6); box-shadow: 0 4px 10px rgba(138, 43, 226, 0.3); }
-        .slow { background: linear-gradient(45deg, #ff0033, #ff6b6b); box-shadow: 0 4px 10px rgba(255, 0, 51, 0.3); }
+        .header p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
 
-        #log-container {
-            margin-top: 20px;
-            background: #000;
-            color: #00ff41;
-            font-family: 'Courier New', monospace;
-            padding: 15px;
-            height: 180px;
-            overflow-y: auto;
-            border-radius: 8px;
-            text-align: left;
-            border: 1px solid #333;
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(34, 197, 94, 0.1);
+            color: var(--color-green);
+            padding: 6px 10px;
+            border-radius: 6px;
             font-size: 12px;
-            white-space: pre-wrap;
+            font-weight: 500;
+            border: 1px solid rgba(34, 197, 94, 0.2);
         }
 
-        .info-header { margin-top: 25px; margin-bottom: 10px; font-size: 14px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 10px;
-            text-align: left;
-        }
-        @media (min-width: 480px) {
-            .info-grid { grid-template-columns: 1fr 1fr 1fr; } /* จอใหญ่แบ่ง 3 ช่อง */
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--color-green);
+            border-radius: 50%;
         }
 
-        .info-box {
-            background: #202020;
-            padding: 12px;
+        /* Body Section */
+        .content {
+            padding: 24px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 480px) {
+            .input-group { flex-direction: column; }
+        }
+
+        .field {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .field label {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .field input {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            padding: 10px 14px;
             border-radius: 8px;
-            font-size: 11px;
-            color: #ccc;
-            border-top: 3px solid #555;
-            line-height: 1.4;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+            font-family: 'JetBrains Mono', monospace;
         }
-        .info-box h3 { margin: 0 0 5px 0; font-size: 13px; color: #fff; }
-        .info-box.i-fast { border-color: #0078ff; }
-        .info-box.i-super { border-color: #8a2be2; }
-        .info-box.i-slow { border-color: #ff0033; }
 
-        .badge { display: inline-block; padding: 2px 5px; border-radius: 3px; font-size: 9px; font-weight: bold; margin-bottom: 5px;}
-        .risk-high { background: rgba(255, 0, 0, 0.2); color: #ff5555; }
-        .risk-med { background: rgba(138, 43, 226, 0.2); color: #d896ff; }
-        .risk-low { background: rgba(0, 255, 0, 0.1); color: #55ff55; }
+        .field input:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 1px var(--border-focus);
+        }
 
+        .field input::placeholder {
+            color: #52525b;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Buttons */
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            background: transparent;
+            color: var(--text-primary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn:hover { background: var(--bg-input); }
+        .btn:active { transform: scale(0.98); }
+
+        .btn-fast { border-color: rgba(59, 130, 246, 0.4); }
+        .btn-fast:hover { background: rgba(59, 130, 246, 0.1); border-color: var(--color-blue); }
+
+        .btn-super { border-color: rgba(139, 92, 246, 0.4); }
+        .btn-super:hover { background: rgba(139, 92, 246, 0.1); border-color: var(--color-purple); }
+
+        .btn-slow { border-color: rgba(239, 68, 68, 0.4); }
+        .btn-slow:hover { background: rgba(239, 68, 68, 0.1); border-color: var(--color-red); }
+
+        /* Console */
+        .console-wrap {
+            background-color: var(--bg-console);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .console-header {
+            display: flex;
+            gap: 6px;
+            padding: 10px 14px;
+            border-bottom: 1px solid var(--border-light);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .mac-btn { width: 10px; height: 10px; border-radius: 50%; }
+        .mac-r { background-color: #ff5f56; }
+        .mac-y { background-color: #ffbd2e; }
+        .mac-g { background-color: #27c93f; }
+
+        .console-logs {
+            padding: 14px;
+            height: 160px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #d4d4d8;
+        }
+
+        .console-logs::-webkit-scrollbar { width: 6px; }
+        .console-logs::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+
+        .log-time { color: #52525b; margin-right: 8px; }
+        .log-error { color: var(--color-red); }
+        .log-success { color: var(--color-green); }
+
+        /* Footer Credit */
+        .footer {
+            padding: 14px 24px;
+            background: #050505;
+            border-top: 1px solid var(--border-light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .credit-link {
+            color: var(--text-primary);
+            font-weight: 500;
+            text-decoration: none;
+            margin-left: 6px;
+            padding: 2px 8px;
+            background: #18181b;
+            border: 1px solid var(--border-light);
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .credit-link:hover {
+            background: #27272a;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
 
-<div class="panel">
-    <h2> SMS Spam Control Panel</h2>
-    
-    <div>
-        <input type="text" id="phone" placeholder="Phone Number (No dashes)" required maxlength="10">
-        <input type="number" id="count" placeholder="Number of Messages" required>
-        
-        <div class="btn-group">
-            <button class="fast" onclick="startSpam('fast')"> Fast</button>
-            <button class="super" onclick="startSpam('super')"> Super</button>
-            <button class="slow" onclick="startSpam('slow')"> Slow</button>
+<div class="main-card">
+    <div class="header">
+        <div>
+            <h1>Dispatch Core</h1>
+            <p>System Management Interface</p>
+        </div>
+        <div class="status-badge">
+            <span class="status-dot"></span> Ready
         </div>
     </div>
 
-    <div id="log-container"> >> waiting for command...</div>
-
-    <div class="info-header"> Details of Operation Modes</div>
-    <div class="info-grid">
-        <div class="info-box i-fast">
-            <h3> Fast Mode</h3>
-            <span class="badge risk-high">Risk: High </span>
-            <ul style="padding-left: 15px; margin: 5px 0;">
-                <li>Send messages as fast as possible without waiting for responses</li>
-                <li>Uses Asyncio (parallel sending)</li>
-                <li><b>Pros:</b> Very fast, sends a large number of SMS</li>
-                <li><b>Cons:</b> Easy to get IP banned and may cause network congestion</li>
-            </ul>
+    <div class="content">
+        <div class="input-group">
+            <div class="field">
+                <label>Target Number</label>
+                <input type="text" id="phone" placeholder="08XXXXXXXX" maxlength="10">
+            </div>
+            <div class="field">
+                <label>Request Volume</label>
+                <input type="number" id="count" placeholder="0">
+            </div>
         </div>
 
-        <div class="info-box i-super">
-            <h3> Super Mode</h3>
-            <span class="badge risk-med">Risk: Medium </span>
-            <ul style="padding-left: 15px; margin: 5px 0;">
-                <li><b>Recommended!</b> Intelligent system</li>
-                <li>Guarantees success according to targets</li>
-                <li>Automatically discards failed APIs</li>
-                <li><b>Pros:</b> Accurate, doesn't waste time sending to dead numbers</li>
-            </ul>
+        <div class="actions">
+            <button class="btn btn-fast" onclick="startSpam('fast')">Fast Mode</button>
+            <button class="btn btn-super" onclick="startSpam('super')">Super Mode</button>
+            <button class="btn btn-slow" onclick="startSpam('slow')">Slow Mode</button>
         </div>
 
-        <div class="info-box i-slow">
-            <h3> Slow Mode</h3>
-            <span class="badge risk-low">Risk: Low </span>
-            <ul style="padding-left: 15px; margin: 5px 0;">
-                <li>Send messages slowly with delays</li>
-                <li>Most similar to human behavior</li>
-                <li><b>Pros:</b> Safe, low chance of being banned</li>
-                <li><b>Cons:</b> Very slow, suitable for long-running sessions</li>
-            </ul>
+        <div class="console-wrap">
+            <div class="console-header">
+                <div class="mac-btn mac-r"></div>
+                <div class="mac-btn mac-y"></div>
+                <div class="mac-btn mac-g"></div>
+            </div>
+            <div class="console-logs" id="log-container">System initialized. Waiting for task...</div>
         </div>
+    </div>
+
+    <div class="footer">
+        Powered by <a href="https://www.tiktok.com/@tp_1092s" target="_blank" class="credit-link">@tp_1092s</a>
     </div>
 </div>
 
 <script>
     let logInterval;
     
+    function getTime() {
+        const d = new Date();
+        return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+    }
+
     function startSpam(mode) {
         const phone = document.getElementById('phone').value;
         const count = document.getElementById('count').value;
         const logBox = document.getElementById('log-container');
-        
+        const time = `<span class="log-time">[${getTime()}]</span>`;
         
         if (!phone || phone.length < 9) {
-            alert(" please enter a valid phone number (at least 9 digits)");
+            logBox.innerHTML += `<br>${time}<span class="log-error">Error: Invalid phone number</span>`;
+            logBox.scrollTop = logBox.scrollHeight;
             return;
         }
         if (!count) {
-            alert(" please enter the number of messages");
+            logBox.innerHTML += `<br>${time}<span class="log-error">Error: Volume not specified</span>`;
+            logBox.scrollTop = logBox.scrollHeight;
             return;
         }
         
-        let modeName = "";
-        let modeColor = "";
-        if(mode === 'fast') { modeName = "Fast "; modeColor = "#0078ff"; }
-        else if(mode === 'super') { modeName = "Super "; modeColor = "#8a2be2"; }
-        else { modeName = "Slow "; modeColor = "#ff0033"; }
-
-        logBox.innerHTML = `<span style="color:${modeColor}">[*] Starting ${modeName} mode...</span>`;
+        logBox.innerHTML += `<br>${time}Initializing task... (Mode: ${mode}, Target: ${phone})`;
         logBox.scrollTop = logBox.scrollHeight;
         
         fetch('/run', {
@@ -202,14 +330,15 @@
         .then(data => {
             if (data.status === 'success') {
                 if (logInterval) clearInterval(logInterval);
-                logInterval = setInterval(fetchLogs, 500); // อัปเดต Log ทุก 0.5 วิ
+                logInterval = setInterval(fetchLogs, 500);
             } else {
-                alert(" Error: " + data.message);
-                logBox.innerHTML += `\n[!] Error: ${data.message}`;
+                logBox.innerHTML += `<br>${time}<span class="log-error">Failed: ${data.message}</span>`;
+                logBox.scrollTop = logBox.scrollHeight;
             }
         })
         .catch(err => {
-            logBox.innerHTML += "\n[!] Server Connection Error";
+            logBox.innerHTML += `<br>${time}<span class="log-error">Fatal: Connection timeout</span>`;
+            logBox.scrollTop = logBox.scrollHeight;
         });
     }
     
@@ -220,12 +349,13 @@
             const logBox = document.getElementById('log-container');
             if(logs.length > 0) {
                 let formattedLogs = logs.map(line => {
-                    if(line.includes("Error") || line.includes("Failed")) return `<span style="color:#ff5555">${line}</span>`;
-                    if(line.includes("Success") || line.includes("Pass")) return `<span style="color:#55ff55">${line}</span>`;
-                    return line;
+                    const time = `<span class="log-time">[${getTime()}]</span>`;
+                    if(line.includes("Error") || line.includes("Failed")) return `${time}<span class="log-error">${line}</span>`;
+                    if(line.includes("Success") || line.includes("Pass")) return `${time}<span class="log-success">${line}</span>`;
+                    return `${time}${line}`;
                 }).join('<br>');
                 
-                logBox.innerHTML = formattedLogs; 
+                logBox.innerHTML = formattedLogs;
                 logBox.scrollTop = logBox.scrollHeight;
             }
         });
